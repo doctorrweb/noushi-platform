@@ -16,17 +16,8 @@ const env = process.env
 @access     Public
 */
  export const register = asyncHandler(async (req, res, next) => {
-    const { method, surname, firstname, email, password, role  } = req.body
-    
-    // Create user
-    const user = await User.create({
-        method,
-        surname,
-        firstname,
-        email, 
-        password,
-        role
-    })
+
+    const user = await User.create(req.body)
 
     sendTokenResponse(user, 200, res)
 

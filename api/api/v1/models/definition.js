@@ -1,7 +1,6 @@
-import { ObjectId } from 'bson'
-import { Schema as mongooseSchema, model, ObjectId } from 'mongoose'
+import { Schema as MongooseSchema, model, ObjectId } from 'mongoose'
 
-const DefinitionSchema = new mongooseSchema({
+const DefinitionSchema = new MongooseSchema({
     content: {
         type: String,
         required: [true, 'Please add a text'],

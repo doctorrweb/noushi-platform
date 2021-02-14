@@ -10,6 +10,8 @@ import {
     updateDetails,
     updatePassword
 } from '../controllers/auth'
+import passport from 'passport'
+import '../authentication/google'
 
 
 const authRouter = Router()
@@ -21,7 +23,7 @@ authRouter.route('/login')
     .post(login)
 
 authRouter.route('/logout')
-    .get(logout)
+    .get(protect, logout)
 
 authRouter.route('/me') 
     .get(protect, getMe)
@@ -35,10 +37,9 @@ authRouter.route('/forgotpassword')
 authRouter.route('/updatepassword')
     .put(protect, updatePassword)
 
+
 authRouter.route('/resetpassword/:resettoken')
     .put(resetPassword)
-
-
 
 
 export default authRouter

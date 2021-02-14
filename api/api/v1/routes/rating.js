@@ -8,7 +8,7 @@ import {
 } from '../controllers/rating'
 import Rating from '../models/rating'
 import { protect } from '../middleware/auth'
-import advancedFiltering from '../middleware/advancedFiletring'
+import advancedFiltering from '../middleware/advancedFiltering'
 
 
 const ratingRouter = Router({ mergeParams: true })

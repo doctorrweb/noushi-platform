@@ -8,7 +8,7 @@ import {
 } from '../controllers/definition'
 import Definition from '../models/definition'
 import { protect } from '../middleware/auth'
-import advancedFiltering from '../middleware/advancedFiletring'
+import advancedFiltering from '../middleware/advancedFiltering'
 import commentRouter from './comment'
 
 const definitionRouter = Router({ mergeParams: true })

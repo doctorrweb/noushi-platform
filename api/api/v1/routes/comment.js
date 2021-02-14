@@ -8,7 +8,7 @@ import {
 } from '../controllers/comment'
 import Comment from '../models/comment'
 import { protect } from '../middleware/auth'
-import advancedFiltering from '../middleware/advancedFiletring'
+import advancedFiltering from '../middleware/advancedFiltering'
 
 const commentRouter = Router({ mergeParams: true })
 

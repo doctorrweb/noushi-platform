@@ -1,11 +1,7 @@
 import ErrorResponse from '../utils/errorResponse'
 import asyncHandler from '../middleware/async'
 import User from '../models/user'
-import { config as dotenvConfig } from 'dotenv'
-import { clearHash } from '../utils/cache'
 
-dotenvConfig()
-const env = process.env
 
 /*
 @desc       GET all users
@@ -15,12 +11,11 @@ const env = process.env
 export const getUsers = asyncHandler(async (req, res, next) => {
     res.status(200).json(res.advancedFiltering)
     
-    // clearHash(req.user.id)
 })
 
 
 /*
-@desc       GET single user
+@desc       GET single User
 @route      GET /api/v1/users/:id
 @access     Private/admin
 */
@@ -38,7 +33,38 @@ export const getUser = asyncHandler(async (req, res, next) => {
 
 
 /*
-@desc       Create user
+@desc       Get Users within a radius
+@route      GET /api/v1/users/radius/:zipcode/:distance
+@access     Private/admin
+*/
+export const getUsersInRadius = asyncHandler( async (req, res, next) => {
+    const { zipcode, distance } = req.params
+
+    // Get lat/lng from geocoder
+    const loc = await geocoder.geocode(zipcode)
+    const lat = loc[0].latitude
+    const lng = loc[0].longitude
+
+    // Calcul radisu using radians
+    // Divide dist by radius of Earth
+    // Earth Radius = 3,963 mi || 6,378 km
+    const radius = 3963.2 / distance
+
+    const users = await User
+    .find({
+        location: { $geoWithin: { $centerSphere: [ [lng, lat], radius ] } }
+    })
+
+    res.status(200).json({
+        success: true,
+        count: users.length,
+        data: users
+    })
+})
+
+
+/*
+@desc       Create User
 @route      POST /api/v1/users
 @access     Private/admin
 */
@@ -50,35 +76,29 @@ export const createUser = asyncHandler(async (req, res, next) => {
         data: user
     })
     
-    // clearHash(req.user.id)
-
 })
 
 
 /*
-@desc       Update user
+@desc       Update User
 @route      PUT /api/v1/users/:id
 @access     Private/admin
 */
 export const updateUser = asyncHandler(async (req, res, next) => {
 
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    })
+    await User.updateOne({_id: req.params.id}, req.body, {timestamps: true})
+    const user = User.find({ _id: req.params.id }) 
 
     res.status(200).json({
         success: true,
         data: user
     })
 
-    // clearHash(req.user.id)
-
 })
 
 
 /*
-@desc       Delete user
+@desc       Delete User
 @route      DELETE /api/v1/users/:id
 @access     Private/admin
 */
@@ -95,5 +115,4 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
         data: {}
     })
 
-    // clearHash(req.user.id)
 })

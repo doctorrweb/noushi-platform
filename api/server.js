@@ -3,7 +3,7 @@ import express from 'express'
 import morgan from 'morgan'
 import colors from 'colors'
 import database from './database'
-import errorHandler from './middleware/error'
+import errorHandler from './api/v1/middleware/error'
 import cookieParser from 'cookie-parser'
 import mongoSanitize from 'express-mongo-sanitize'
 import helmet from 'helmet'
@@ -11,10 +11,9 @@ import xss from 'xss-clean'
 import rateLimit from 'express-rate-limit'
 import hpp from 'hpp'
 import cors from 'cors'
-import { config as dotenvConfig } from 'dotenv'
-import appRouter from './routers'
-
-dotenvConfig()
+import passport from 'passport'
+import appRouter from './api/v1/routes'
+import googleRouter from './api/v1/routes/google'
 
 const app = express()
 database.connect()
@@ -43,6 +42,10 @@ app.use(express.urlencoded({ extended: true }, { limit: '50mb' }))
 app.use(express.json({ limit: '50mb' }, { type: '*/*' }))
 
 
+//Configure Passport
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use(cookieParser())
 
 // To remove data, use:
@@ -70,6 +73,9 @@ app.use(hpp())
 
 // Middleware for Routes
 app.use('/api/v1', appRouter)
+
+// Google Auth Routes
+app.use('/auth/google', googleRouter)
 
 // Custom Error Handler
 app.use(errorHandler)

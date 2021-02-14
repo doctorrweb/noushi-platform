@@ -1,7 +1,6 @@
-import { ObjectId } from 'bson'
-import { Schema as mongooseSchema, model, ObjectId } from 'mongoose'
+import { Schema as MongooseSchema, model, ObjectId } from 'mongoose'
 
-const RatingSchema = new mongooseSchema({
+const RatingSchema = new MongooseSchema({
     value: {
         type: Number,
         required: [true, 'Please add a value'],
@@ -53,11 +52,11 @@ const RatingSchema = new mongooseSchema({
 })
 
 // Reverse populate actions with virtuals
-DefinitionSchema.virtual('comments', {
+RatingSchema.virtual('comments', {
     ref: 'Comment',
     localField: '_id',
     foreignField: 'word',
     justOne: false
 })
 
-export default model('Definition', RatingSchema)
+export default model('Rating', RatingSchema)

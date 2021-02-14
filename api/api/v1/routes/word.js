@@ -8,7 +8,7 @@ import {
 } from '../controllers/word'
 import Word from '../models/word'
 import { protect } from '../middleware/auth'
-import advancedFiltering from '../middleware/advancedFiletring'
+import advancedFiltering from '../middleware/advancedFiltering'
 import definitionRouter from './definition'
 import ratingRouter from './rating'
 import commentRouter from './comment'

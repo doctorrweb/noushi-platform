@@ -1,28 +1,61 @@
 import crypto from 'crypto'
-import { Schema, model } from 'mongoose'
+import { Schema as MongooseSchema, model } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { config as dotenvConfig } from 'dotenv'
+import setLocation from '../utils/geocoder'
 
-dotenvConfig()
-const env = process.env
-
-
-const UserSchema = new Schema({
+const UserSchema = new MongooseSchema({
     method: {
-        type: String,
-        enum: ['local', /* facebook, google, linkedin, github, activDirecvtory */],
+        type: [String],
+        enum: ['local', 'facebook', 'google', 'instagram'],
         required: [true, 'Please select a connection Method'],
-        default: 'local'
+        default: ['local']
     },
     email: {
         type: String,
         required: [true, 'Please add an email address'],
         match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
             'Please add a valid email address'
         ],
+        trim: true,
         unique: true
+    },
+    username: {
+        type: String,
+        required: [true, 'Please add an username'],
+        unique: true
+    },
+    address: {
+        type: String,
+    },
+    location: {
+        type: {
+            type: String, // Don't do `{ location: { type: String } }`
+            enum: ['Point'], // 'location.type' must be 'Point'
+        },
+        coordinates: {
+            type: [Number],
+            index: '2dsphere'
+        },
+        formattedAddress: String,
+        street: String,
+        city: String,
+        state: String,
+        zipcode: String,
+        country: String,
+    },
+    role: {
+        type: String,
+        lowercase: true,
+        enum: [
+            'suscriber',
+            'manager',
+            'contributor',
+            'administrator'
+        ],
+        required: true,
+        default: 'administrator'
     },
     password: {
         type: String,
@@ -42,26 +75,6 @@ const UserSchema = new Schema({
     resetPasswordExpire: {
         type: Date,
         select: false
-    },
-    surname: {
-        type: String,
-        required: [true, 'Please add a surname']
-    },
-    firstname: {
-        type: String,
-        required: [true, 'Please add a firstname']
-    },
-    role: {
-        type: String,
-        lowercase: true,
-        enum: [
-            'suscriber',
-            'manager',
-            'contributor',
-            'administrator'
-        ],
-        required: true,
-        default: 'suscriber'
     },
     pic: {
         type: String
@@ -86,6 +99,37 @@ UserSchema.pre('save', async function (next) {
     next()
 })
 
+
+// Geocode & create location field 
+UserSchema.pre('save', async function (next) {
+
+    if (!this.address) next()
+
+    const location = await setLocation(this.address)
+    this.location = location
+
+    // Do not save address in DB
+    this.address = undefined
+
+    next()
+})
+
+
+// Geocode & create location field 
+UserSchema.pre('updateOne', async function (next) {
+
+    if (!this.isModified('address')) next()
+
+    const location = await setLocation(this.address)
+    this.location = location
+
+    // Do not save address in DB
+    this.address = undefined
+
+    next()
+})
+
+
 // Compare Password
 UserSchema.methods.matchPassword = async function (password) {
     return bcrypt.compareSync(password, this.password)
@@ -93,7 +137,7 @@ UserSchema.methods.matchPassword = async function (password) {
 
 //Sign a web Token
 UserSchema.methods.getSignedJwtToken = function() {
-    return jwt.sign({ id: this._id }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRE })
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE })
 } 
 
 // Generate and Hash Password Token
@@ -114,12 +158,26 @@ UserSchema.methods.getResetPasswordToken = function(req, res, next) {
     return resetToken
 }
 
-// // Reverse populate with virtuals
-// UserSchema.virtual('deliverables', {
-//     ref: 'Deliverable',
-//     localField: '_id',
-//     foreignField: 'responsible',
-//     justOne: false
-// })
+// Reverse populate with virtuals
+UserSchema.virtual('words', {
+    ref: 'Word',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: false
+})
+// Reverse populate with virtuals
+UserSchema.virtual('definitions', {
+    ref: 'Definition',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: false
+})
+// Reverse populate with virtuals
+UserSchema.virtual('comments', {
+    ref: 'Comment',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: false
+})
 
 export default model('User', UserSchema)

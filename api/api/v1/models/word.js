@@ -1,7 +1,6 @@
-import { ObjectId } from 'bson'
-import { Schema as mongooseSchema, model, ObjectId } from 'mongoose'
+import { Schema as MongooseSchema, model, ObjectId } from 'mongoose'
 
-const WordSchema = new mongooseSchema({
+const WordSchema = new MongooseSchema({
     text: {
         type: String,
         required: [true, 'Please add a text'],
@@ -12,13 +11,14 @@ const WordSchema = new mongooseSchema({
         type: ObjectId,
         ref: 'Definition'
     },
-    etymology: {
-        type: ObjectId,
-        ref: 'Etymology'
-    },
-    isActive: {
+    certified: {
         type: Boolean,
-        default: true
+        default: false
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'active', 'deprecated'],
+        default: 'inactiv'
     },
     lang: {
         type: String,

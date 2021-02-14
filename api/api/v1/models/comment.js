@@ -1,7 +1,6 @@
-import { ObjectId } from 'bson'
-import { Schema as mongooseSchema, model, ObjectId } from 'mongoose'
+import { Schema as MongooseSchema, model, ObjectId } from 'mongoose'
 
-const CommentSchema = new mongooseSchema({
+const CommentSchema = new MongooseSchema({
     content: {
         type: String,
         required: [true, 'Please add a text'],
@@ -52,4 +51,4 @@ const CommentSchema = new mongooseSchema({
     timestamps: { createdAt: 'createdAt'}
 })
 
-export default model('Definition', CommentSchema)
+export default model('Comment', CommentSchema)
