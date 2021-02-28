@@ -16,12 +16,23 @@ import commentRouter from './comment'
 
 const wordRouter = Router()
 
+const populateWord = [
+    {
+        path: 'definitions',
+        select: 'content isActive'
+    },
+    { 
+        path: 'comments',
+        select: 'content type word definition isActive' 
+    }
+]
+
 wordRouter.use('/:wordId/definitions', definitionRouter)
 wordRouter.use('/:wordId/comments', commentRouter)
 wordRouter.use('/:wordId/ratings', ratingRouter)
 
 wordRouter.route('/')
-    .get(advancedFiltering(Word), getWords)
+    .get(advancedFiltering(Word, populateWord), getWords)
     .post(protect, createWord)
 
 wordRouter.route('/:id')

@@ -2,7 +2,7 @@ import ErrorResponse from '../utils/errorResponse'
 import asyncHandler from '../middleware/async'
 import Rating from '../models/rating'
 import Word from '../models/word'
-
+import Definition from '../models/definition'
 
 
 /*
@@ -12,7 +12,8 @@ import Word from '../models/word'
 */
 export const createRating = asyncHandler( async (req, res, next) => {
 
-    if(req.params.wordId) return addRating()
+    if(req.params.wordId) return addWordRating(req, res, next)
+    if(req.params.definitionId) return addDefinitionRating(req, res, next)
 
     req.body.user = req.user.id
     
@@ -66,13 +67,14 @@ export const getRating = asyncHandler( async (req, res, next) => {
 
 
 /*
-@desc       Add a Rating
+@desc       Add a Rating to a Word
 @route      Post /api/v1/words/:wordId/ratings
 @access     Private
 */
-const addRating = asyncHandler( async (req, res, next) => {
+const addWordRating = asyncHandler( async (req, res, next) => {
 
     req.body.word = req.params.wordId
+    req.body.target = 'word'
     req.body.user = req.user.id
 
     const word = await Word.findById(req.params.wordId)
@@ -81,6 +83,36 @@ const addRating = asyncHandler( async (req, res, next) => {
 
     // Make sure User is the event owner
     if(word.user.toString() !== req.user.id && req.user.role !== 'administrator') {
+        return next(new ErrorResponse(`User ${req.user.id} is not authorize to update this content`, 401))
+    }
+
+    const rating = await Rating.create(req.body)
+
+    res.status(200).json({
+        success: true,
+        data: rating
+    })
+
+})
+
+
+/*
+@desc       Add a Rating to a Definition
+@route      Post /api/v1/definitions/:definitionId/ratings
+@access     Private
+*/
+const addDefinitionRating = asyncHandler( async (req, res, next) => {
+
+    req.body.definition = req.params.definitionId
+    req.body.target = 'definition'
+    req.body.user = req.user.id
+
+    const definition = await Definition.findById(req.params.definitionId)
+
+    if(!definition) return next(new ErrorResponse(`Resource not found with id of ${req.params.definitionId}`, 404))
+
+    // Make sure User is the event owner
+    if(definition.user.toString() !== req.user.id && req.user.role !== 'administrator') {
         return next(new ErrorResponse(`User ${req.user.id} is not authorize to update this content`, 401))
     }
 

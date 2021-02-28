@@ -12,7 +12,20 @@ import { protect, authorize } from '../middleware/auth'
 
 const userRouter = Router()
 
-const populateUser = []
+const populateUser = [
+    { 
+        path: 'words',
+        select: 'text status certified' 
+    },
+    { 
+        path: 'definitions',
+        select: 'content isActive' 
+    },
+    { 
+        path: 'comments',
+        select: 'content type word definition isActive' 
+    }
+]
 
  userRouter.use(protect)
  userRouter.use(authorize('administrator'))

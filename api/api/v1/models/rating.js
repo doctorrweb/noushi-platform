@@ -5,7 +5,7 @@ const RatingSchema = new MongooseSchema({
         type: Number,
         required: [true, 'Please add a value'],
         min: [1, 'Completion rate must be at least 1'],
-        max: [10, 'Completion rate cannot be more than 10'],
+        max: [5, 'Completion rate cannot be more than 10'],
     },
     target: {
         type: String,
@@ -19,17 +19,17 @@ const RatingSchema = new MongooseSchema({
             function () {
                 return this.type === 'word'
             },
-            'Please add a comment'
+            'Please add a word'
         ]
     },
     definition: {
         type: ObjectId,
-        ref: 'Word',
+        ref: 'Definition',
         required: [
             function () {
                 return this.type === 'definition'
             },
-            'Please add a comment'
+            'Please add a definition'
         ]
     },
     isActive: {

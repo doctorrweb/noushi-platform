@@ -14,7 +14,7 @@ const DefinitionSchema = new MongooseSchema({
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: false
     },
     lang: {
         type: String,

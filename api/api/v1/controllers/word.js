@@ -1,7 +1,7 @@
 import ErrorResponse from '../utils/errorResponse'
 import asyncHandler from '../middleware/async'
 import Word from '../models/word'
-import { config as dotenvConfig } from 'dotenv'
+
 
 /*
 @desc       GET all Words
@@ -21,6 +21,8 @@ export const getWords = asyncHandler(async (req, res, next) => {
 @access     Public
 */
 export const getWord = asyncHandler(async (req, res, next) => {
+
+    
     
     const word = await Word
         .findById(req.params.id)
@@ -50,6 +52,7 @@ export const createWord = asyncHandler(async (req, res, next) => {
     })
     
 })
+
 
 /*
 @desc       Update Word

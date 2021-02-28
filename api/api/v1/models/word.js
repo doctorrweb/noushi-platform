@@ -18,7 +18,7 @@ const WordSchema = new MongooseSchema({
     status: {
         type: String,
         enum: ['pending', 'active', 'deprecated'],
-        default: 'inactiv'
+        default: 'pending'
     },
     lang: {
         type: String,

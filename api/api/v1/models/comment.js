@@ -19,17 +19,17 @@ const CommentSchema = new MongooseSchema({
             function () {
                 return this.type === 'word'
             },
-            'Please add a comment'
+            'Please add a word'
         ]
     },
     definition: {
         type: ObjectId,
-        ref: 'Word',
+        ref: 'Definition',
         required: [
             function () {
                 return this.type === 'definition'
             },
-            'Please add a comment'
+            'Please add a definition'
         ]
     },
     isActive: {

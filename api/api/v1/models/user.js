@@ -6,14 +6,25 @@ import setLocation from '../utils/geocoder'
 
 const UserSchema = new MongooseSchema({
     method: {
-        type: [String],
+        type: String,
         enum: ['local', 'facebook', 'google', 'instagram'],
         required: [true, 'Please select a connection Method'],
-        default: ['local']
+        default: 'local'
+    },
+    google: {
+        sub: {
+            type: String,
+            required: [
+                function () {
+                    return this.method === 'google'
+                },
+                'For Google connections, the google sub is required'
+            ]
+        }
     },
     email: {
         type: String,
-        required: [true, 'Please add an email address'],
+        required: [ true, 'the email address is required' ],
         match: [
             /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
             'Please add a valid email address'
@@ -28,6 +39,12 @@ const UserSchema = new MongooseSchema({
     },
     address: {
         type: String,
+    },
+    locale: {
+        type: String,
+        enum: ['fr', 'en'],
+        required: [true, 'Please select a language'],
+        default: 'fr'
     },
     location: {
         type: {
@@ -63,7 +80,7 @@ const UserSchema = new MongooseSchema({
             function () {
                 return this.method === 'local'
             },
-            'For local connections, the password is required'
+            'For Local connections, the password is required'
         ],
         minlength: [6, 'Your password must have 6 characters minimum'],
         select: false,
@@ -79,6 +96,10 @@ const UserSchema = new MongooseSchema({
     pic: {
         type: String
     },
+    // isActive: {
+    //     type: Boolean,
+    //     default: false
+    // },
     createdAt: {
         type: Date,
         default: Date.now
@@ -118,13 +139,22 @@ UserSchema.pre('save', async function (next) {
 // Geocode & create location field 
 UserSchema.pre('updateOne', async function (next) {
 
-    if (!this.isModified('address')) next()
+    const docToUpdate = await this.model.findOne(this.getQuery())
 
-    const location = await setLocation(this.address)
-    this.location = location
+    // console.log('docToUpdate', this._update)
+
+    if (this._update.address) {
+        const location = await setLocation(this._update.address)
+        this._update.location = location
+    }
+
+    if(this._update.password) {
+        const salt = await bcrypt.genSalt(10)
+        this._update.password = await bcrypt.hash(this._update.password, salt)
+    }
 
     // Do not save address in DB
-    this.address = undefined
+    this._update.address = undefined
 
     next()
 })

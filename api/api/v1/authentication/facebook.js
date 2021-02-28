@@ -16,3 +16,31 @@
 //   }
 
 // ))
+
+import passport from "passport"
+import { Strategy as FacebookStrategy } from "passport-facebook"
+import User from '../models/user'
+
+passport.serializeUser(function(user, done) {
+    done(null, user.id)
+  })
+  
+passport.deserializeUser(function(user, done) {
+    done(null, user.id)
+})
+
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      callbackURL: process.env.FACEBOOK_CALLBACK_URL
+    },
+    function(accessToken, refreshToken, profile, done) {
+        console.log('accessToken', accessToken)
+        console.log('refreshToken', refreshToken)
+        console.log('profile', profile._json)
+      done(null, profile)
+    }
+  )
+)

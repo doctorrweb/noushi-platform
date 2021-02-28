@@ -11,7 +11,7 @@ import Word from '../models/word'
 */
 export const createDefinition = asyncHandler( async (req, res, next) => {
 
-    if(req.params.wordId) return addDefinition()
+    if(req.params.wordId) return addDefinition(req, res, next)
 
     req.body.user = req.user.id
     
@@ -20,7 +20,6 @@ export const createDefinition = asyncHandler( async (req, res, next) => {
         success: true,
         data: definition
     })
-
 })
 
 
@@ -32,7 +31,7 @@ export const createDefinition = asyncHandler( async (req, res, next) => {
 export const getDefinitions = asyncHandler(async (req, res, next) => {
 
     if (req.params.wordId) {
-        const definitions = Definition
+        const definitions = await Definition
             .find({ word: req.params.wordId })
 
         res.status(200).json({
@@ -70,6 +69,7 @@ export const getDefinition = asyncHandler( async (req, res, next) => {
 @access     Private
 */
 const addDefinition = asyncHandler( async (req, res, next) => {
+
 
     req.body.word = req.params.wordId
     req.body.user = req.user.id

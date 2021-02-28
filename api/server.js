@@ -14,6 +14,7 @@ import cors from 'cors'
 import passport from 'passport'
 import appRouter from './api/v1/routes'
 import googleRouter from './api/v1/routes/google'
+import facebookRouter from './api/v1/routes/facebook'
 
 const app = express()
 database.connect()
@@ -76,6 +77,19 @@ app.use('/api/v1', appRouter)
 
 // Google Auth Routes
 app.use('/auth/google', googleRouter)
+
+// Google Auth Routes
+app.use('/auth/facebook', facebookRouter)
+
+app.use('/me', (req, res ) => {
+    // console.log(req.user.isAuthenticated())
+    res.send('successfully connected to Noushi platform')
+})
+
+app.use('/failed', (req, res ) => {
+    console.log(req.user.isAuthenticated())
+    res.send('connection to Noushi through google failed !')
+})
 
 // Custom Error Handler
 app.use(errorHandler)

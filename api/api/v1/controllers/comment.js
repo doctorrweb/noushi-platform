@@ -13,8 +13,8 @@ import Word from '../models/word'
 */
 export const createComment = asyncHandler( async (req, res, next) => {
 
-    if (req.params.definitionId) return addDefinitionComment()
-    if (req.params.wordId) return addWordComment()
+    if (req.params.definitionId) return addDefinitionComment(req, res, next)
+    if (req.params.wordId) return addWordComment(req, res, next)
 
     req.body.user = req.user.id
     
@@ -75,6 +75,7 @@ export const getComment = asyncHandler( async (req, res, next) => {
 const addWordComment = asyncHandler( async (req, res, next) => {
 
     req.body.word = req.params.wordId
+    req.body.type = 'word'
     req.body.user = req.user.id
 
     const word = await Word.findById(req.params.wordId)
@@ -103,6 +104,7 @@ const addWordComment = asyncHandler( async (req, res, next) => {
 const addDefinitionComment = asyncHandler( async (req, res, next) => {
 
     req.body.definition = req.params.definitionId
+    req.body.type = 'definition'
     req.body.user = req.user.id
 
     const definition = await Definition.findById(req.params.definitionId)

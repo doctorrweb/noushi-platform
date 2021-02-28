@@ -1,5 +1,6 @@
 import ErrorResponse from '../utils/errorResponse'
 import asyncHandler from '../middleware/async'
+import emailHandler from '../utils/emailHandler'
 import User from '../models/user'
 
 
@@ -69,13 +70,33 @@ export const getUsersInRadius = asyncHandler( async (req, res, next) => {
 @access     Private/admin
 */
 export const createUser = asyncHandler(async (req, res, next) => {
-    const user = await User.create(req.body)
+
+    const user = new User(req.body)
+    const resetPasswordToken = await user.getResetPasswordToken()
+    
+    await user.save({ validateBeforeSave: false })
+    
+    // Create Reset url
+
+    // Send an email to the new user
+    const message = `
+    Your account on Noushi Platform has been created successfully. Please use the link below to update your password. 
+    Please make a PUT request to: 
+    ${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${resetPasswordToken}
+    `
+    await emailHandler({
+        email: user.email,
+        subject: 'Account created on Noushi Platform',
+        message
+    })
     
     res.status(200).json({
         success: true,
-        data: user
+        data: {
+            user, 
+            message: 'email sent'
+        }
     })
-    
 })
 
 
@@ -87,13 +108,13 @@ export const createUser = asyncHandler(async (req, res, next) => {
 export const updateUser = asyncHandler(async (req, res, next) => {
 
     await User.updateOne({_id: req.params.id}, req.body, {timestamps: true})
-    const user = User.find({ _id: req.params.id }) 
+    const user = await User.findById(req.params.id) 
 
-    res.status(200).json({
-        success: true,
-        data: user
-    })
-
+    res.status(200)
+        .json({
+            success: true,
+            data: user
+        })
 })
 
 
