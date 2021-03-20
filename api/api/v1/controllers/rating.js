@@ -81,7 +81,11 @@ const addWordRating = asyncHandler( async (req, res, next) => {
 
     if(!word) return next(new ErrorResponse(`Resource not found with id of ${req.params.wordId}`, 404))
 
-    // Make sure User is the event owner
+    // Check if the user has already rated this word
+    const [userRating] = await Rating.find({ user: req.user.id, word: req.params.wordId })
+    if(userRating) return next(new ErrorResponse(`The user ${req.user.id} has already rated the word with the id of: ${req.params.wordId}`, 401))
+
+    // Make sure User is the word owner
     if(word.user.toString() !== req.user.id && req.user.role !== 'administrator') {
         return next(new ErrorResponse(`User ${req.user.id} is not authorize to update this content`, 401))
     }
@@ -111,7 +115,12 @@ const addDefinitionRating = asyncHandler( async (req, res, next) => {
 
     if(!definition) return next(new ErrorResponse(`Resource not found with id of ${req.params.definitionId}`, 404))
 
-    // Make sure User is the event owner
+    // Check if the user has already rated this definition
+    const [userRating] = await Rating.find({ user: req.user.id, definition: req.params.definitionId })
+    if(userRating) return next(new ErrorResponse(`The user ${req.user.id} has already rated the definition with the id of: ${req.params.definitionId}`, 401))
+
+
+    // Make sure User is the definition owner
     if(definition.user.toString() !== req.user.id && req.user.role !== 'administrator') {
         return next(new ErrorResponse(`User ${req.user.id} is not authorize to update this content`, 401))
     }

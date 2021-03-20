@@ -234,6 +234,30 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
 })
 
 
+
+/*
+@desc       delete Account
+@route      DELETE /api/v1/auth/deleteaccount
+@access     Private
+*/
+ export const deleteAccount = asyncHandler(async (req, res, next) => {
+     const user = await User.findById(req.user.id)
+
+     res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    })
+
+    user.remove()
+
+    res.status(200).json({
+        success: true,
+        data: {}
+    })
+ })
+
+
+
 // get Token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // create Token

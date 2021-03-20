@@ -12,16 +12,6 @@ const CommentSchema = new MongooseSchema({
         enum: ['word', 'definition'],
         required: [true, 'Please add a Type']
     },
-    word: {
-        type: ObjectId,
-        ref: 'Word',
-        required: [
-            function () {
-                return this.type === 'word'
-            },
-            'Please add a word'
-        ]
-    },
     definition: {
         type: ObjectId,
         ref: 'Definition',

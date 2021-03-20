@@ -26,6 +26,11 @@ const WordSchema = new MongooseSchema({
         required: [true, 'Please choose a language'],
         default: 'noushi'
     },
+    avgRating: {
+        type: Number,
+        min: [1, 'Average Rating must be at least 1'],
+        max: [10, 'Average Rating cannot be more than 10']
+    },
     user: {
         type: ObjectId,
         ref: 'User',
@@ -56,5 +61,6 @@ WordSchema.virtual('comments', {
     foreignField: 'word',
     justOne: false
 })
+
 
 export default model('Word', WordSchema)

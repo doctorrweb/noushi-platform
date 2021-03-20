@@ -8,7 +8,8 @@ import {
     forgotPassword,
     resetPassword,
     updateDetails,
-    updatePassword
+    updatePassword,
+    deleteAccount
 } from '../controllers/auth'
 import passport from 'passport'
 import '../authentication/google'
@@ -36,6 +37,9 @@ authRouter.route('/forgotpassword')
 
 authRouter.route('/updatepassword')
     .put(protect, updatePassword)
+
+authRouter.route('/deleteaccount')
+    .delete(protect, deleteAccount)
 
 
 authRouter.route('/resetpassword/:resettoken')
